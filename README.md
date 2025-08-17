@@ -5,19 +5,13 @@
 ![image](./framework.png)
 
 ## Dependencies
+CUDA 12.1
 python==3.12
 torch==2.2
 torch_geometric==2.5.3
-biopython==1.79  
-numpy==1.26.0 
-pdb2pqr=3.5.2  
-pdb2sql=0.5.1  
-pssm=0.1.0  
-PSSMGen=1.1.2  
-scikit-learn==1.0.2  
- 
  `conda install -c conda-forge -c bioconda hhsuite`
- `pip install transformers==4.37.0`
+ `conda install conda-forge::pymol-open-source`
+ `pip install transformers==4.37.0 biopandas scikit-learn biopython==1.79 numpy==1.26`
  Install SaProt and ChemBERTa
 
 ## Data preparation
