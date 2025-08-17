@@ -2,23 +2,24 @@
 `SageTCR: a structure-based model integrating residue- and atom-level representations for enhanced TCR-pMHC binding prediction`
 
 ## `The framework of SAGERank:`
-![image](pictures/framework.png)
-## `Features: powerful inductive ability` 
-The SAGERank models trained for antibody-antigen docking can be used to examine generally protein-protein interaction docking, determining whether protein and protein can bind and differentiate crystal packing from biological interface.
-![image](Schematic-drawing1.png)
-![image](Schematic-drawing2.png)
+![image](./framework.png)
+
 ## Dependencies
+python==3.12
+torch==2.2
+torch_geometric==2.5.3
 biopython==1.79  
-freesasa==2.0.3.post7  
-numpy==1.23.3  
+numpy==1.26.0 
 pdb2pqr=3.5.2  
 pdb2sql=0.5.1  
 pssm=0.1.0  
 PSSMGen=1.1.2  
 scikit-learn==1.0.2  
-torch-geometric==2.0.3  
-MEGADOCK==4.0.2  
-eppic WebServer：(https://www.eppic-web.org/)
+ 
+ `conda install -c conda-forge -c bioconda hhsuite`
+ `pip install transformers==4.37.0`
+ Install SaProt and ChemBERTa
+
 ## Data preparation
 1. `Preprocessing the structure of the complex.` It mainly includes the combination of the light and heavy chain of the antibody and the renaming of the amino acid number, and the antibody antigen is split into two files, and the chain name should be unified (C and D).
 2. `Access a large number of conformations using docking software.` megadock is used for molecular docking, during which the CDR region of the antibody is locked and the antigen spins freely.
