@@ -21,11 +21,10 @@ scikit-learn==1.0.2
  Install SaProt and ChemBERTa
 
 ## Data preparation
-1. `Preprocessing the structure of the complex.` It mainly includes the combination of the light and heavy chain of the antibody and the renaming of the amino acid number, and the antibody antigen is split into two files, and the chain name should be unified (C and D).
-2. `Access a large number of conformations using docking software.` megadock is used for molecular docking, during which the CDR region of the antibody is locked and the antigen spins freely.
-3. `Three-dimensional structure extraction of contact surface.` Obtain structures in the 10 angstrom range of the contact surface of the antibody antigen complex or protein protein complex.(You can also freely define the size)
-4. `Generating a graph structure file.` You can choose the node construction based on amino acids or atoms, or you can choose to calculate the relationship between amino acid pairs and atomic pairs based on the antibody CDR region or three-dimensional coordinates.
+1. `python data_processing/extract_interface.py` Running this file will extract the interface from the PDBfile of a full TCR-pMHC complex structure. It is necessary to rename the protein chains so that the pMHC portion is labeled as chain C and the TCR portion as chain D.
+2. `python data_processing/language_model_encoder_complex.py` Extract residue-level SaProt embeddings and atom-level ChemBERTa embeddings for the interface.
+3. `python data_processing/generate_dataset.py` Generate the dataset for SageTCR.
+   
 ## Training on your own data set
-Follow the steps in data preparation, if you have access to a large number of graph structure files, then you can use the `train.py` script for training, and you can also use `test.py` for testing related tasks
-## Reference and cite content
-Chuance Sun, Ganggang Bai, Honglin Xu, Yanjing Wang, Buyong Ma. SAGERank: Inductive Learning of Protein-Protein Interaction from Antibody-Antigen Recognition using Graph Sample and Aggregate Networks Framework. bioRxiv 2023.10.11.561985; doi: https://doi.org/10.1101/2023.10.11.561985
+Follow the steps in data preparation, if you have access to a large number of graph structure files, then you can use the `train.py` script for training, and you can also use `eval.py` for testing related tasks
+
