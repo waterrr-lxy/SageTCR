@@ -111,10 +111,9 @@ class SageTCRDataset(Dataset):
         return data
 
 # ----------------------main-------------------------
-mhc_class = 2
-npz_dir = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/AF3_prediction/class{mhc_class}_neg_feature/lm_npz'
-dataset_dir = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/AF3_prediction/class{mhc_class}_neg_feature/dataset2'
-label = 0
+npz_dir = f'/data4_large1/home_data/xyli/neoantigen/github_opensource/example/lm_npz'
+dataset_dir = f'/data4_large1/home_data/xyli/neoantigen/github_opensource/example/dataset'
+label = 'unknown'
 os.system(f'mkdir {dataset_dir}')
 
 npz_ls = os.listdir(npz_dir)

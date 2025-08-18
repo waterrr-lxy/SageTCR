@@ -36,27 +36,15 @@ def extract_interface(pdb_path, lig_dir, rec_dir, lig_chain='C', rec_chain='D', 
     cmd.reinitialize()
 
 
-sample_info = pd.read_csv('/data4_large1/home_data/xyli/neoantigen/ref_model/SAGERank/database/dock_neg_data/mhc2_selfdock_irmsd_top_v2.csv')
-mhc_dock_dir = '/data4_large1/home_data/xyli/neoantigen/ref_model/SAGERank/database/dock_neg_data/mhc2_self_dock'
-rec_dir = '/data5_large/home/xyli/neoantigen/database/dock_neg_data/mhc2_selfdock_feature/rec'
-lig_dir = '/data5_large/home/xyli/neoantigen/database/dock_neg_data/mhc2_selfdock_feature/lig'
-error_list = []
-top_sample_info = sample_info[sample_info['irmsd']<=5]
-# top_sample_info = sample_info  # 本来就是筛选过irmsd<=5的，不需要二次筛选
-for idx, item in top_sample_info.iterrows():
-    mhc_id = item['mhc_pdbid']
-    tcr_id = item['tcr_pdbid']
-    complex_name = item['complex']
+# sample_info = pd.read_csv('/data4_large1/home_data/xyli/neoantigen/ref_model/SAGERank/database/dock_neg_data/mhc2_selfdock_irmsd_top_v2.csv')
+complex_dir = '/data4_large1/home_data/xyli/neoantigen/github_opensource/example/complex_pdb'
+rec_dir = '/data4_large1/home_data/xyli/neoantigen/github_opensource/example/rec'
+lig_dir = '/data4_large1/home_data/xyli/neoantigen/github_opensource/example/lig'
+os.makedirs(rec_dir, exist_ok=True)
+os.makedirs(lig_dir, exist_ok=True)
 
-    pdb_path = os.path.join(mhc_dock_dir, mhc_id, tcr_id, 'complex', complex_name)
-    save_name = f'{mhc_id}+{tcr_id}_{complex_name}'
 
-    try:
-        extract_interface(pdb_path, lig_dir, rec_dir, save_name=save_name)
-    except:
-        error_list.append(save_name)
+for filename in os.listdir(complex_dir):
+    complex_pdb = os.path.join(complex_dir, filename)
+    extract_interface(complex_pdb, lig_dir, rec_dir, save_name=filename)
 
-with open(os.path.join(os.path.dirname(rec_dir), 'extract_interface.err'), 'a') as f1:
-    for error in error_list:
-        print(error)
-        f1.write(error)
