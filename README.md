@@ -15,9 +15,16 @@ torch_geometric==2.5.3
 Install SaProt and ChemBERTa  
 
 ## Data preparation
-1. `python data_processing/extract_interface.py` Running this file will extract the interface from the PDBfile of a full TCR-pMHC complex structure. It is necessary to rename the protein chains so that the pMHC portion is labeled as chain C and the TCR portion as chain D.
+1. `python data_processing/extract_interface.py`  
+   This script extracts the interface from the PDB file of a full TCR-pMHC complex structure.  
+   **Note:** Please rename the protein chains so that the pMHC portion is labeled as chain **C** and the TCR portion as chain **D**.  
+
+   We provide processed example complex PDB files in the `example/complex_pdb` directory.  
+   You may replace these files with your own predicted TCR-pMHC structure files for testing.
+
 2. `python data_processing/language_model_encoder_complex.py` Extract residue-level SaProt embeddings and atom-level ChemBERTa embeddings for the interface.
 3. `python data_processing/generate_dataset.py` Generate the dataset for SageTCR.
+
    
 ## Training on your own data set
 Follow the steps in data preparation, if you have access to a large number of graph structure files, then you can use the `train.py` script for training, and you can also use `eval.py` for testing related tasks
