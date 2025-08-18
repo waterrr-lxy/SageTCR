@@ -1,4 +1,4 @@
-# SAGERank
+# SageTCR
 `SageTCR: a structure-based model integrating residue- and atom-level representations for enhanced TCR-pMHC binding prediction`
 
 ## `The framework of SageTCR:`
