@@ -17,6 +17,7 @@ import numpy as np
 import os
 import sys
 import configparser
+from model.SageTCR import *
 
 print('cuda可用性：', torch.cuda.is_available())
 
@@ -51,7 +52,6 @@ class SageTCRDataset(Dataset):
         self.data_df = data_df
         self.complex_ls = data_df['complex']
         
-        # 自定义的初始化参数一定要写在super之前
         super(SageTCRDataset, self).__init__(root, transform, pre_transform, pre_filter)
      
     @property
@@ -98,13 +98,11 @@ class SageTCRDataset(Dataset):
             atom_edge_index = torch.LongTensor(atom_edge_index)
             res_edge_index = torch.LongTensor(np.vstack([coo_matrix(res_adj).row, coo_matrix(res_adj).col]))
             res_edge_index = torch.LongTensor(res_edge_index)
-#             data = Data(x=x, edge_index=edge_index, y=torch.LongTensor([label]))  # 使用CrossEtropyloss
+
             data = PairData(x_atom=atom_node, edge_index_atom=atom_edge_index,
-                            #  y_atom=torch.FloatTensor([label]),
                             x_res=res_node, edge_index_res=res_edge_index,
-                            y=torch.FloatTensor([label])
-                            )  # 使用BCEloss
-            # torch.save(data, os.path.join(self.processed_dir, '.pt'))         
+                            # y=torch.FloatTensor([label]),
+                            complex=prefix)
             
             if self.pre_filter is not None and not self.pre_filter(data):
                 continue
@@ -124,40 +122,12 @@ class SageTCRDataset(Dataset):
 
 
 # external test dataset
-pos_dir = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/origin_pos/dataset2'
-pos_df = pd.read_csv(os.path.join(pos_dir, 'data_info.csv'))
-pos_dataset = SageTCRDataset(root=os.path.join(pos_dir, 'language_feature'),
-                              data_df=pos_df)
-
-# crossdock
-neg_dir1 = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/dock_neg/class1_crossdock_feature/dataset2'
-neg_df1 = pd.read_csv(os.path.join(neg_dir1, 'data_info.csv'))
-neg_dataset1 = SageTCRDataset(root=os.path.join(neg_dir1, 'language_feature'),
-                              data_df=neg_df1)
-
-neg_dir2 = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/dock_neg/class2_crossdock_feature/dataset2'
-neg_df2 = pd.read_csv(os.path.join(neg_dir2, 'data_info.csv'))
-neg_dataset2 = SageTCRDataset(root=os.path.join(neg_dir2, 'language_feature'),
-                              data_df=neg_df2)
-
-# crossalign
-neg_dir3 = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/align_neg/class1_crossalign_feature/dataset2'
-neg_df3 = pd.read_csv(os.path.join(neg_dir3, 'data_info.csv'))
-neg_dataset3 = SageTCRDataset(root=os.path.join(neg_dir3, 'language_feature'),
-                              data_df=neg_df3)
-neg_dir4 = f'/data5_large/home/xyli/neoantigen/test_model/internal_test/align_neg/class2_crossalign_feature/dataset2'
-neg_df4 = pd.read_csv(os.path.join(neg_dir4, 'data_info.csv'))
-neg_dataset4 = SageTCRDataset(root=os.path.join(neg_dir4, 'language_feature'),
-                              data_df=neg_df4)
-
-neg_dataset = neg_dataset1 + neg_dataset2 + neg_dataset3 + neg_dataset4
-dataset = pos_dataset + neg_dataset
-pos_num = len(pos_dataset)
-neg_num = len(neg_dataset)
-# 打包成dataloader
+data_dir = f'/data4_large1/home_data/xyli/neoantigen/github_opensource/example/dataset'
+data_df = pd.read_csv(os.path.join(data_dir, 'data_info.csv'))
+dataset = SageTCRDataset(root=data_dir,
+                              data_df=data_df)
 dataloader = DataLoader(dataset, batch_size=4, shuffle=False, follow_batch=['x_atom', 'x_res'])
 
-from model.SageTCR import *
 
 ablation = 0
 # 1. 初始化模型    
@@ -188,14 +158,14 @@ if ablation == 0:
 
 
 param_file = 'params/rotate_perturbation.pt'
-model.load_state_dict(torch.load(os.path.join(param_dir,'epoch%d_statedict.pth'%epoch),
+model.load_state_dict(torch.load(param_file,
                       map_location=torch.device('cpu')))
 np.set_printoptions(precision=None, suppress=True)
 model.eval()
-model.to(device)
-pred_label = torch.empty(0,1).to(device)
-true_label = torch.empty(0,1).to(device)
-scores = torch.empty(0,1).to(device)
+model.to(torch.device('cuda'))
+pred_label = torch.empty(0,1).to(torch.device('cuda'))
+true_label = torch.empty(0,1).to(torch.device('cuda'))
+scores = torch.empty(0,1).to(torch.device('cuda'))
 
 with torch.no_grad(): # 表示没有梯度，只测试不调优
     test_loss = 0
@@ -203,8 +173,7 @@ with torch.no_grad(): # 表示没有梯度，只测试不调优
     test_recall = 0
 
     for data in dataloader:
-        data = data.to(device)
-        label = data.y.unsqueeze(dim=-1)
+        data = data.to(torch.device('cuda'))
         atom_node = data.x_atom
         atom_edge = data.edge_index_atom
         atom_batch = data.x_atom_batch
@@ -220,6 +189,6 @@ with torch.no_grad(): # 表示没有梯度，只测试不调优
         scores = torch.concat([scores, batch_score], dim=0)
         batch_pred_label = torch.round(F.sigmoid(output))  # 这个batch的预测标签
         pred_label = torch.concat([pred_label, batch_pred_label], dim=0)  # 记录所有样本的预测标签
-        true_label = torch.concat([true_label, label.detach()], dim=0)
 
-print(pred_label)
+
+print(scores)
